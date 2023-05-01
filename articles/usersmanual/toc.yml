@@ -1,0 +1,13 @@
+- uid: des.readme
+- name: Installation
+  items:
+  - uid: des.installation
+  - uid: des.configuration
+- name: Erste Schritte
+  items:
+  - uid: des.firststeps.configuration
+  - uid: des.firststeps.programming
+- uid: des.troubleshooting
+- uid: des.filestructure
+- name: Debug
+- name: Database Schema

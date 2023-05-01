@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="DEScron"
+           targetNamespace="http://tecware-gmbh.de/dev/des/2014"
+           elementFormDefault="qualified"
+           xmlns="http://tecware-gmbh.de/dev/des/2014"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<xs:include id="DEScore" schemaLocation="DEScore.xsd" />
+	<xs:include id="DESconfigItem" schemaLocation="DESconfigItem.xsd" />
+
+	<xs:complexType name="CronJobItemType">
+		<xs:complexContent>
+			<xs:extension base="ConfigLogItemType">
+				<xs:sequence>
+					<xs:element name="runafter" minOccurs="0" maxOccurs="unbounded" type="xs:string">
+						<xs:annotation>
+							<xs:documentation>If this job is running, the current job can not be started.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+				<xs:attribute name="bound" type="CronBound" use="optional">
+					<xs:annotation>
+						<xs:documentation>Defines the schedule of the job. (Example: "0,1,*" - every Minute, "22:26" - once per day)</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="runTimeSlice" type="TimeSpan" use="optional">
+					<xs:annotation>
+						<xs:documentation>The maximum runtime for the job per invocation.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:element name="luaCronJob" substitutionGroup="configItem">
+		<xs:annotation>
+			<xs:documentation>Defines job that is based on a lua file.</xs:documentation>
+			<xs:appinfo>
+				<class>TecWare.DE.Server.LuaCronJobItem</class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="CronJobItemType">
+					<xs:attribute name="supportsCancelation" type="xs:boolean" use="optional" default="false">
+						<xs:annotation>
+							<xs:documentation>Does this job supports cancellation.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="cronBatch" substitutionGroup="configItem" type="CronJobItemType">
+		<xs:annotation>
+			<xs:documentation>Defines job that will execute every containing job as an batch.</xs:documentation>
+			<xs:appinfo>
+				<class>TecWare.DE.Server.CronJobGroupBatch</class>
+			</xs:appinfo>
+		</xs:annotation>
+	</xs:element>
+
+	<xs:element name="cronGroup" substitutionGroup="configItem" type="CronJobItemType">
+		<xs:annotation>
+			<xs:documentation>Defines job that will execute every containing job parallel.</xs:documentation>
+			<xs:appinfo>
+				<class>TecWare.DE.Server.CronJobGroupStart</class>
+			</xs:appinfo>
+		</xs:annotation>
+	</xs:element>
+</xs:schema>

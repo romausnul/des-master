@@ -1,0 +1,283 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="DESprocess"
+           targetNamespace="http://tecware-gmbh.de/dev/des/2014"
+           elementFormDefault="qualified"
+           xmlns="http://tecware-gmbh.de/dev/des/2014"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<xs:include id="DEScore" schemaLocation="DEScore.xsd" />
+	<xs:include id="DESconfigItem" schemaLocation="DESconfigItem.xsd" />
+
+	<xs:element name="process" substitutionGroup="configItem">
+		<xs:annotation>
+			<xs:documentation>Manage a external process.</xs:documentation>
+			<xs:appinfo>
+				<class>TecWare.DE.Server.DEProcessItem</class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="ConfigLogItemType">
+					<xs:sequence>
+						<xs:element name="arguments" minOccurs="0" maxOccurs="1" type="xs:string">
+							<xs:annotation>
+								<xs:documentation>Beschreibt die Argumente der Anwendung</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="env" minOccurs="0" maxOccurs="unbounded">
+							<xs:complexType mixed="true">
+								<xs:annotation>
+									<xs:documentation>Legt eine Environmentvariable fest.</xs:documentation>
+								</xs:annotation>
+								<xs:attribute name="key" type="xs:string" use="required">
+									<xs:annotation>
+										<xs:documentation>Name der Environmentvariable</xs:documentation>
+									</xs:annotation>
+								</xs:attribute>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="kill" minOccurs="0" maxOccurs="1" type="xs:string">
+							<xs:annotation>
+								<xs:documentation>Befehl der gesendet wird beim Beenden.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+					<xs:attribute name="filename" type="PathType" use="optional">
+						<xs:annotation>
+							<xs:documentation>Dateiname</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="arguments" type="xs:string" use="optional">
+						<xs:annotation>
+							<xs:documentation>Beschreibt die Argumente der Anwendung</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="domain" type="xs:string" use="optional">
+						<xs:annotation>
+							<xs:documentation>Domain des Nutzers mit dem der Prozess gestartet werden soll.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="username" type="xs:string" use="optional">
+						<xs:annotation>
+							<xs:documentation>Nutzer mit dem der Prozess gestartet werden soll.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="password" type="PasswordType" use="optional">
+						<xs:annotation>
+							<xs:documentation>Password des Nutzers</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="loadUserProfile" type="xs:boolean" use="optional">
+						<xs:annotation>
+							<xs:documentation>Profil des Nutzers laden</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="outputEncoding" type="EncodingType" use="optional">
+						<xs:annotation>
+							<xs:documentation>Kodierung für die StdOut,StdErr Umleitung (Id oder Name).</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="inputEncoding" type="EncodingType" use="optional">
+						<xs:annotation>
+							<xs:documentation>Kodierung für die StdIn Umleitung (Id oder Name).</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="workingDirectory" type="PathType" use="optional">
+						<xs:annotation>
+							<xs:documentation>Aktuelles Verzeichnis in der die Anwendung gestartet werden soll.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+
+					<xs:attribute name="autostart" type="xs:boolean" use="optional" default="false">
+						<xs:annotation>
+							<xs:documentation>Soll die Anwendung automatisch gestartet werden</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="configrestart" type="xs:boolean" use="optional" default="false">
+						<xs:annotation>
+							<xs:documentation>Soll bei der Änderung der Konfiguration, die Anwendung automatisch gestartet werden.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="directoryListener" substitutionGroup="configItem">
+		<xs:annotation>
+			<xs:documentation>Services notifies about new files in a directory.</xs:documentation>
+			<xs:appinfo>
+				<class>TecWare.DE.Server.DirectoryListenerItem</class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="ConfigLogItemType">
+					<xs:attribute name="path" type="PathType" use="required">
+						<xs:annotation>
+							<xs:documentation>Path to watch.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="filter" type="xs:string" use="optional" default="*.*">
+						<xs:annotation>
+							<xs:documentation>File filter.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="recursive" type="xs:boolean" use="optional" default="false">
+						<xs:annotation>
+							<xs:documentation>Value indicating whether subdirectories within the specified path should be monitored (default: false).</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="method" default="None">
+						<xs:annotation>
+							<xs:documentation>Method, of marking processed files.</xs:documentation>
+						</xs:annotation>
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:enumeration value="None">
+									<xs:annotation>
+										<xs:documentation>No logic is choosen for detecting files that are processed.</xs:documentation>
+									</xs:annotation>
+								</xs:enumeration>
+								<xs:enumeration value="TimeStamp">
+									<xs:annotation>
+										<xs:documentation>The system will remind the last time stamp, was processed.</xs:documentation>
+									</xs:annotation>
+								</xs:enumeration>
+								<xs:enumeration value="ArchiveBit">
+									<xs:annotation>
+										<xs:documentation>The archive bit in the file system is used. Becareful if e.g. backup programs are running.</xs:documentation>
+									</xs:annotation>
+								</xs:enumeration>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+					<xs:attribute name="delay" type="TimeSpan" use="optional" default="00:00:05">
+						<xs:annotation>
+							<xs:documentation>Delay after notification, before the file is processed.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="rescan" type="TimeSpan" use="optional">
+						<xs:annotation>
+							<xs:documentation>Time between full directory scans, null for disable.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="proxy" substitutionGroup="configItem">
+		<xs:annotation>
+			<xs:documentation>A proxy for object items.</xs:documentation>
+			<xs:appinfo>
+				<class>TecWare.DE.Server.ProxyItem</class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="ConfigItemType">
+					<xs:sequence>
+						<xs:element name="redirect" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>Filter rule for the proxy.</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:attribute name="id" type="KeyType">
+									<xs:annotation>
+										<xs:documentation>Id for this rule.</xs:documentation>
+									</xs:annotation>
+								</xs:attribute>
+								<xs:attribute name="url" type="xs:string" use="required">
+									<xs:annotation>
+										<xs:documentation>Regex to descripe the uri.</xs:documentation>
+									</xs:annotation>
+								</xs:attribute>
+								<xs:attribute name="allowInSearch" type="xs:boolean" use="optional" default="false">
+									<xs:annotation>
+										<xs:documentation>Regex can target chars within the uri. The default false let only target at the beginning.</xs:documentation>
+									</xs:annotation>
+								</xs:attribute>
+								<xs:attribute name="allow" type="xs:boolean" use="required">
+									<xs:annotation>
+										<xs:documentation>Allow this redirect.</xs:documentation>
+									</xs:annotation>
+								</xs:attribute>
+								<xs:attribute name="urlReplacement" type="xs:string" use="optional">
+									<xs:annotation>
+										<xs:documentation>Rewrite the url-part, that is captured with the regex.</xs:documentation>
+									</xs:annotation>
+								</xs:attribute>
+								<xs:attribute name="customRewriter" type="xs:string" use="optional">
+									<xs:annotation>
+										<xs:documentation>Lua function, that process the request.</xs:documentation>
+									</xs:annotation>
+								</xs:attribute>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="rewrite" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>Content rewrite rule.</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:attribute name="id" type="KeyType">
+									<xs:annotation>
+										<xs:documentation>Id for this rule.</xs:documentation>
+									</xs:annotation>
+								</xs:attribute>
+								<xs:attribute name="redirect" use="required">
+									<xs:annotation>
+										<xs:documentation>Rule is only used in this redirect rule.</xs:documentation>
+									</xs:annotation>
+									<xs:simpleType>
+										<xs:list itemType="xs:string" />
+									</xs:simpleType>
+								</xs:attribute>
+								<xs:attribute name="media" type="xs:string" use="required">
+									<xs:annotation>
+										<xs:documentation>Rule applies to pattern.</xs:documentation>
+									</xs:annotation>
+								</xs:attribute>
+								<xs:attribute name="pattern" type="xs:string" use="required">
+									<xs:annotation>
+										<xs:documentation>Search pattner</xs:documentation>
+									</xs:annotation>
+								</xs:attribute>
+								<xs:attribute name="replacement" type="xs:string" use="required">
+									<xs:annotation>
+										<xs:documentation>Replacement text.</xs:documentation>
+									</xs:annotation>
+								</xs:attribute>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+					<xs:attribute name="target" type="xs:string" use="required">
+						<xs:annotation>
+							<xs:documentation>Target for the proxy.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="base" type="VirtualSubPathType" use="optional">
+						<xs:annotation>
+							<xs:documentation>Virtuelle Url unter der die Dateien eingeordnet werden sollen.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="priority" type="xs:int" use="optional" default="100">
+						<xs:annotation>
+							<xs:documentation>Bestimmt Reihenfolge der Aufrufe</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="defaultAllow" type="xs:boolean" use="optional" default="false">
+						<xs:annotation>
+							<xs:documentation>Allow to process all redirects.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="timeout" type="xs:int" use="optional" default="5">
+						<xs:annotation>
+							<xs:documentation>Timeout for target uri's.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

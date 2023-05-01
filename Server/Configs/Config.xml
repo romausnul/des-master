@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<des xmlns="http://tecware-gmbh.de/dev/des/2014" version="330" >
+	<server logpath="Log">
+		<resolve>..\..\SimpleDbg\bin\Debug</resolve>
+	</server>
+
+	<http realm="Test Server">
+		<prefix>http://+:8080/</prefix>
+
+		<access id="testNone" scheme="basic none">http://+:8080/testCron/</access>
+
+		<basicuser name="test1" userName="test" password="plain:test" groups="desSys" />
+		<basicuser name="test2" userName="test2" password="plain:test" groups="desSys" />
+		<basicuser name="test3" userName="test3" password="plain:test" groups="desSys" />
+	</http>
+	<cron />
+	<luaengine displayname="LuaEngine" allowDebug="true" script="debugEnv">
+		<script id="debugEnv" filename="InitDebug.lua" />
+		<script id="cron" filename="cron.lua"/>
+		<script id="filter" filename="proxy.lua" />
+		<tests id="tests" filename="tests.lua" />
+	</luaengine>
+
+	<luaCronJob name="testCron" bound="0,1,*" script="cron" />
+	<files name="test" displayname="max" directory="test" script="cron">
+		<mimeDef filter="*.lua">text/x-lua</mimeDef>
+	</files>
+
+	<configItem name="web">
+		<proxy name="proxy" target="http://garten:8080/" script="filter">
+			<redirect id="gitLogin" url="/user/login" allow="true" customRewriter="LoginFilter" />
+			<!--redirect id="git" url="^$" allow="true" /-->
+			<redirect id="git" url="/" allow="true" />
+
+			<rewrite id="addr" redirect="*" media="text/html" pattern="(href|src|action)=&quot;\/" replacement="$1=&quot;/web/" />
+			<rewrite id="home" redirect="*" media="text/*" pattern="garten:8080" replacement="localhost:8080/web" />
+			<rewrite id="js1" redirect="*" media="text/*" pattern="AppSubUrl\:\s\'" replacement="AppSubUrl: '/web"/>
+			<rewrite id="js2" redirect="*" media="text/*" pattern="AssetUrlPrefix\:\s\'\\" replacement="AssetUrlPrefix: '\\/web\\" />
+		</proxy>
+	</configItem>
+</des>

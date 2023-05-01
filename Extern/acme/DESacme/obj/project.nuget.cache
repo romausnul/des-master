@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "dgSpecHash": "axBefJUXt9FHM6+Yz48ZRVD+9i7LKPsqxDq3TYUWjkmqNh5lRX51CySmZsaEyVCqsd4YmsV4InU/gyIwKeea/Q==",
+  "success": false,
+  "projectFilePath": "D:\\des-master\\Extern\\acme\\DESacme\\DESacme.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\romau\\.nuget\\packages\\certes\\3.0.3\\certes.3.0.3.nupkg.sha512",
+    "C:\\Users\\romau\\.nuget\\packages\\microsoft.csharp\\4.5.0\\microsoft.csharp.4.5.0.nupkg.sha512",
+    "C:\\Users\\romau\\.nuget\\packages\\neolua\\1.3.14\\neolua.1.3.14.nupkg.sha512",
+    "C:\\Users\\romau\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512",
+    "C:\\Users\\romau\\.nuget\\packages\\portable.bouncycastle\\1.8.10\\portable.bouncycastle.1.8.10.nupkg.sha512",
+    "C:\\Users\\romau\\.nuget\\packages\\system.valuetuple\\4.5.0\\system.valuetuple.4.5.0.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1104",
+      "level": "Error",
+      "message": "Не удалось найти проект \"D:\\des-master\\Extern\\Core\\DESCore\\DESCore.csproj\". Убедитесь, что ссылка на проект действительна и файл проекта существует.",
+      "libraryId": "D:\\des-master\\Extern\\Core\\DESCore\\DESCore.csproj",
+      "targetGraphs": [
+        ".NETFramework,Version=v4.8"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,644 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="DES"
+           targetNamespace="http://tecware-gmbh.de/dev/des/2014"
+           elementFormDefault="qualified"
+           xmlns="http://tecware-gmbh.de/dev/des/2014"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<xs:include schemaLocation="Configuration/DEScore.xsd" />
+	<xs:include schemaLocation="Configuration/DESconfigItem.xsd" />
+
+	<xs:simpleType name="AllowDebugType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="false" />
+			<xs:enumeration value="true" />
+			<xs:enumeration value="local" />
+			<xs:enumeration value="remote" />
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:complexType name="UserType">
+		<xs:complexContent>
+			<xs:extension base="ConfigItemType">
+				<xs:attribute name="userName" type="xs:string" use="optional">
+					<xs:annotation>
+						<xs:documentation>User name for the user. If this attribute is missing, the name attribute will be the user name.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="groups" use="required">
+					<xs:annotation>
+						<xs:documentation>Definiert die Gruppen, Securitytoken, die dem Nutzer zugeordnet werden.</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:list itemType="xs:string" />
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="HttpWorkerType">
+		<xs:complexContent>
+			<xs:extension base="ConfigLogItemType">
+				<xs:sequence minOccurs="0" maxOccurs="unbounded">
+					<xs:element name="mimeDef" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Defines a mime-type for the filter.</xs:documentation>
+						</xs:annotation>
+						<xs:complexType mixed="true">
+							<xs:attribute name="filter" type="KeyType" use="required">
+								<xs:annotation>
+									<xs:documentation>Filter for the files.</xs:documentation>
+								</xs:annotation>
+							</xs:attribute>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="securityDef" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Defines the security tokens for the file.</xs:documentation>
+						</xs:annotation>
+						<xs:complexType mixed="true">
+							<xs:attribute name="filter" type="KeyType" use="required">
+								<xs:annotation>
+									<xs:documentation>Filter for the files.</xs:documentation>
+								</xs:annotation>
+							</xs:attribute>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+				<xs:attribute name="base" type="VirtualSubPathType" use="optional">
+					<xs:annotation>
+						<xs:documentation>Virtuelle Url unter der die Dateien eingeordnet werden sollen.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="priority" type="xs:int" use="optional" default="100">
+					<xs:annotation>
+						<xs:documentation>Bestimmt Reihenfolge der Aufrufe</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="HttpFileWorkerType">
+		<xs:complexContent>
+			<xs:extension base="HttpWorkerType">
+				<xs:attribute name="directory" type="PathType" use="required">
+					<xs:annotation>
+						<xs:documentation>Directory access.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="allowListing" type="xs:boolean" use="optional" default="false">
+					<xs:annotation>
+						<xs:documentation>Allow listing of containing files.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="filter" type="xs:string" use="optional" default="*">
+					<xs:annotation>
+						<xs:documentation>Filter pattern for files.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="indexPage" type="xs:string" use="optional" default="Index.html">
+					<xs:annotation>
+						<xs:documentation>Set the default page.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="encoding" type="EncodingType" use="optional" default="utf-8">
+					<xs:annotation>
+						<xs:documentation>Default encoding to open text files.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="HttpResourceWorkerType">
+		<xs:complexContent>
+			<xs:extension base="HttpWorkerType">
+				<xs:sequence>
+					<xs:element name="alternativeRoot" type="PathType" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>Searchpath for files in the file system. The file is only taken, if the timestamp is newer as the timestamp of the assembly (the file must exist in the assembly). Use this option only during development, it is not secure in an productiv environment.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+				<xs:attribute name="assembly" type="xs:string" use="required">
+					<xs:annotation>
+						<xs:documentation>Assembly, in welchen sich die Resourcen befinden.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="namespace" type="xs:string" use="required">
+					<xs:annotation>
+						<xs:documentation>Namespace innerhalb des Assemblies, welches als Wurzel verwendet wird.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="nonePresentAlternativeExtensions" use="optional">
+					<xs:annotation>
+						<xs:documentation>List of endings, they will never be in the assembly. This is used for debug-proposes.</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:list itemType="xs:string" />
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="ScriptType">
+		<xs:attribute name="id" type="KeyType" use="required">
+			<xs:annotation>
+				<xs:documentation>Id of the script</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="filename" type="PathType" use="required">
+			<xs:annotation>
+				<xs:documentation>Filename of Lua script</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="encoding" type="EncodingType" use="optional">
+			<xs:annotation>
+				<xs:documentation>Specifies the default encoding for the script. (name or code page)</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	
+	<xs:element name="files" substitutionGroup="configItem" type="HttpFileWorkerType">
+		<xs:annotation>
+			<xs:documentation>Dateien für diesen Knoten zur Verfügung stellen.</xs:documentation>
+			<xs:appinfo>
+				<class>TecWare.DE.Server.Http.HttpFileWorker, DE.Server</class>
+			</xs:appinfo>
+		</xs:annotation>
+	</xs:element>
+
+	<xs:element name="resources" substitutionGroup="configItem" type="HttpResourceWorkerType">
+		<xs:annotation>
+			<xs:documentation>Resourcen für diesen Knoten zur Verfügung stellen.</xs:documentation>
+			<xs:appinfo>
+				<class>TecWare.DE.Server.Http.HttpResourceWorker, DE.Server</class>
+			</xs:appinfo>
+		</xs:annotation>
+	</xs:element>
+
+	<xs:element name="group" substitutionGroup="configItem" type="ConfigItemType">
+		<xs:annotation>
+			<xs:documentation>Groups element in a simple configuration node.</xs:documentation>
+			<xs:appinfo>
+				<class>TecWare.DE.Server.DEGroup</class>
+			</xs:appinfo>
+		</xs:annotation>
+	</xs:element>
+	
+	<xs:complexType name="desServer">
+		<xs:sequence>
+			<xs:element name="resolve" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Definiert ein Verzeichnis indem Assemblies gesucht werden.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="PathType">
+							<xs:attribute name="type" use="optional" default="net">
+								<xs:annotation>
+									<xs:documentation>How is the path used.</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:enumeration value="net">
+											<xs:annotation>
+												<xs:documentation>This path is only used in the .net assembly resolver.</xs:documentation>
+											</xs:annotation>
+										</xs:enumeration>
+										<xs:enumeration value="platform">
+											<xs:annotation>
+												<xs:documentation>This path is used for the .net assembly resolver, and also a sub path is added to the environment PATH (on 64bit systems the x64 is added, on 32bit systems the x86 is added).</xs:documentation>
+											</xs:annotation>
+										</xs:enumeration>
+										<xs:enumeration value="envonly">
+											<xs:annotation>
+												<xs:documentation>Adds this path to the environment.</xs:documentation>
+											</xs:annotation>
+										</xs:enumeration>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:attribute>
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			
+			<xs:element name="load" minOccurs="0" maxOccurs="unbounded" type="KeyType">
+				<xs:annotation>
+					<xs:documentation>Gibt das Assembly an, welches geladen werden soll. Das angegebene Assembly wird nach Schema-Informationen durchsucht.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			
+			<xs:element name="dependonservice" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Service to wait for. While waiting, the configuration is not loaded.</xs:documentation>
+				</xs:annotation>
+
+				<xs:complexType mixed="true">
+					<xs:attribute name="maxtime" type="xs:int" default="30000">
+						<xs:annotation>
+							<xs:documentation>Maximum time to wait. (in ms)</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+
+			<xs:sequence minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="certificateRule" minOccurs="0" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:attribute name="id" type="KeyType" use="required">
+							<xs:annotation>
+								<xs:documentation>Unique id of this rule.</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+						<xs:attribute name="hash" type="xs:string" use="optional">
+							<xs:annotation>
+								<xs:documentation>Certificate hash to allow/deny.</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+						<xs:attribute name="cn" type="xs:string" use="optional">
+							<xs:annotation>
+								<xs:documentation>Common name to allow/deny.</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+						<xs:attribute name="allow" type="xs:boolean" use="optional">
+							<xs:annotation>
+								<xs:documentation>Allow this certificate</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+					</xs:complexType>
+				</xs:element>
+
+				<xs:element name="securitygroup" minOccurs="0" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>Definiert Berechtigungen für den Zugriff auf den Server. Es werden Security-Tokens zu einer Gruppe zusammengefasst, was wiederrum einen Security-Token ergibt.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType mixed="true">
+						<xs:attribute name="name" type="KeyType" use="required">
+							<xs:annotation>
+								<xs:documentation>Bezeichnung der Gruppe.</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:sequence>
+		<xs:attribute name="logpath" type="PathType" use="optional">
+			<xs:annotation>
+				<xs:documentation>Legt den Pfad fest in dem die Logdateien abgelegt werden sollen.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="procdump" type="PathType" use="optional" default="%executedirectory%\procdump.exe">
+			<xs:annotation>
+				<xs:documentation>Path to the sysinterals procdump.exe.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:element name="http">
+		<xs:annotation>
+			<xs:documentation>Erweitert das Http-Element.</xs:documentation>
+			<xs:appinfo>
+				<class>TecWare.DE.Server.DEHttpServer</class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="ConfigServiceType">
+					<xs:sequence>
+						<xs:element ref="log" minOccurs="0" maxOccurs="1" />
+
+						<xs:sequence minOccurs="0" maxOccurs="unbounded">
+							<xs:element name="prefix" minOccurs="0" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Translate a http-Listener prefix to a specific configuration path.</xs:documentation>
+								</xs:annotation>
+								<xs:complexType mixed="true">
+									<xs:attribute name="path" type="KeyType" use="optional" default="/">
+										<xs:annotation>
+											<xs:documentation>Configuration path, with is the mapping desitination.</xs:documentation>
+										</xs:annotation>
+									</xs:attribute>
+									<xs:attribute name="allowGroups" use="optional" default="*">
+										<xs:annotation>
+											<xs:documentation>Security groups, that can be access trough this prefix.</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:list itemType="xs:string" />
+										</xs:simpleType>
+									</xs:attribute>
+									<xs:attribute name="debugOn" type="xs:boolean" use="optional" default="false">
+										<xs:annotation>
+											<xs:documentation>Debug all traffic over this path.</xs:documentation>
+										</xs:annotation>
+									</xs:attribute>
+								</xs:complexType>
+							</xs:element>
+
+							<xs:element name="access" minOccurs="0" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Defines the access schema for http-Listener.</xs:documentation>
+								</xs:annotation>
+								<xs:complexType mixed="true">
+									<xs:attribute name="id" use="required" type="KeyType">
+										<xs:annotation>
+											<xs:documentation>This is a key, that make this access definition unique during the merge process.</xs:documentation>
+										</xs:annotation>
+									</xs:attribute>
+									<xs:attribute name="scheme" use="optional" default="none">
+										<xs:annotation>
+											<xs:documentation>Welches Security-Schema soll für diesen Knoten verwendet werden.</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:list>
+												<xs:simpleType>
+													<xs:restriction base="xs:string">
+														<xs:enumeration value="none" />
+														<xs:enumeration value="basic" />
+														<xs:enumeration value="digest" />
+														<xs:enumeration value="ntlm" />
+														<xs:enumeration value="negotiate" />
+													</xs:restriction>
+												</xs:simpleType>
+											</xs:list>
+										</xs:simpleType>
+									</xs:attribute>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+
+						<xs:element name="basicuser" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:appinfo>
+									<class>TecWare.DE.Server.Applications.DEUser</class>
+								</xs:appinfo>
+								<xs:documentation>Nutzer der sich Authentifizieren kann.</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:complexContent>
+									<xs:extension base="UserType">
+										<xs:attribute name="password" type="PasswordType" use="optional">
+											<xs:annotation>
+												<xs:documentation>Passwort des Nutzers.</xs:documentation>
+											</xs:annotation>
+										</xs:attribute>
+										<xs:attribute name="passwordHash" type="xs:string" use="optional">
+											<xs:annotation>
+												<xs:documentation>Passwort-Hash des Nutzers.</xs:documentation>
+											</xs:annotation>
+										</xs:attribute>
+									</xs:extension>
+								</xs:complexContent>
+							</xs:complexType>
+						</xs:element>
+
+						<xs:element name="ntmluser" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:appinfo>
+									<class>TecWare.DE.Server.Applications.DEUser</class>
+								</xs:appinfo>
+								<xs:documentation>Nutzer der sich Authentifizieren kann.</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:complexContent>
+									<xs:extension base="UserType">
+										<xs:attribute name="domain" type="xs:string" use="required">
+											<xs:annotation>
+												<xs:documentation>Name of the users domain</xs:documentation>
+											</xs:annotation>
+										</xs:attribute>
+									</xs:extension>
+								</xs:complexContent>
+							</xs:complexType>
+						</xs:element>
+
+						<xs:element name="mime" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>Definiert zu einer Dateiendung den mime-type.</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:attribute name="ext" type="KeyType" use="required">
+									<xs:annotation>
+										<xs:documentation>Endung der Datei (z.B. &quot;.png&quot;).</xs:documentation>
+									</xs:annotation>
+								</xs:attribute>
+								<xs:attribute name="mime" type="xs:string" use="required">
+									<xs:annotation>
+										<xs:documentation>Mime-Type zu der Endung (z.B. &quot;image/png&quot;).</xs:documentation>
+									</xs:annotation>
+								</xs:attribute>
+								<xs:attribute name="packed" type="xs:boolean" use="optional" default="false">
+									<xs:annotation>
+										<xs:documentation>Is the content of this mime type, packed by data format definition (default: false).</xs:documentation>
+									</xs:annotation>
+								</xs:attribute>
+							</xs:complexType>
+						</xs:element>
+
+						<xs:element ref="configItem" minOccurs="0" maxOccurs="unbounded" />
+					</xs:sequence>
+
+					<xs:attribute name="realm" type="xs:string" use="optional" default="Data Exchange Server">
+						<xs:annotation>
+							<xs:documentation>Gibt die Authentifizierungs-/Partitionsierungszeichenfolge für den Server an.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+
+					<xs:attribute name="encoding" type="EncodingType" use="optional" default="utf-8">
+						<xs:annotation>
+							<xs:documentation>Specifies the default encoding for the server.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+
+					<xs:attribute name="defaultUserLanguage" type="xs:language" use="optional" default="de-DE">
+						<xs:annotation>
+							<xs:documentation>The default user language for http requests.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="cron">
+		<xs:annotation>
+			<xs:documentation>Service for timed job handling.</xs:documentation>
+			<xs:appinfo>
+				<class>TecWare.DE.Server.DECronEngine</class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="ConfigServiceType">
+					<xs:sequence>
+						<xs:element ref="log" minOccurs="0" maxOccurs="1" />
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="luaengine">
+		<xs:annotation>
+			<xs:documentation>Extends the Lua scripting engine.</xs:documentation>
+			<xs:appinfo>
+				<class>TecWare.DE.Server.LuaEngine</class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="ConfigServiceType">
+					<xs:sequence>
+						<xs:element ref="log" minOccurs="0" maxOccurs="1" />
+
+						<xs:sequence minOccurs="0" maxOccurs="unbounded">
+							<xs:element name="script" minOccurs="0" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Defines a script for the extension of an configuration node. The script will be compiled and connected to the configuration nodes.</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:complexContent>
+										<xs:extension base="ScriptType">
+											<xs:attribute name="autoreload" type="xs:boolean" use="optional" default="false">
+												<xs:annotation>
+													<xs:documentation>Re-execute the script when file is changing. (Default=false)</xs:documentation>
+												</xs:annotation>
+											</xs:attribute>
+											<xs:attribute name="debug" type="xs:boolean" use="optional" default="true">
+												<xs:annotation>
+													<xs:documentation>Load script with debug information. (Default=true)</xs:documentation>
+												</xs:annotation>
+											</xs:attribute>
+										</xs:extension>
+									</xs:complexContent>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="tests" minOccurs="0" maxOccurs="unbounded" type="ScriptType">
+								<xs:annotation>
+									<xs:documentation>Defines a script for the debug engine, that contains test functions.</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:sequence>
+					<xs:attribute name="allowDebug" type="AllowDebugType" use="optional" default="local">
+						<xs:annotation>
+							<xs:documentation>Sets if it is possible to connect with the debug protocol (Default: true)</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="serverTcp">
+		<xs:annotation>
+			<xs:documentation>Initializes a general purpose tcp server.</xs:documentation>
+			<xs:appinfo>
+				<class>TecWare.DE.Server.TcpServer</class>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="ConfigServiceType">
+					<xs:sequence>
+						<xs:element ref="log" minOccurs="0" maxOccurs="1" />
+					</xs:sequence>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="include">
+		<xs:annotation>
+			<xs:documentation>Elemente werden an der Include via des-include.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:any minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="fragment">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="server" minOccurs="0" maxOccurs="1" type="desServer">
+					<xs:annotation>
+						<xs:documentation>Erweitert das Server-Element.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+
+				<xs:element ref="http" minOccurs="0" maxOccurs="1" />
+				<xs:element ref="cron" minOccurs="0" maxOccurs="1" />
+				<xs:element ref="luaengine" minOccurs="0" maxOccurs="1" />
+				<xs:element ref="serverTcp" minOccurs="0" maxOccurs="1" />
+
+				<xs:sequence minOccurs="0" maxOccurs="unbounded">
+					<xs:element ref="genericService" minOccurs="0" maxOccurs="unbounded" />
+					<xs:element ref="configItem" minOccurs="0" maxOccurs="unbounded" />
+				</xs:sequence>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="des">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="ConfigServiceType">
+					<xs:sequence>
+						<xs:element ref="log" minOccurs="0" maxOccurs="1"  />
+
+						<xs:element name="server" minOccurs="1" maxOccurs="1">
+							<xs:annotation>
+								<xs:documentation>Settings that are made to the server.</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:complexContent>
+									<xs:extension base="desServer">
+										<xs:attribute name="logpath" type="PathType" use="required">
+											<xs:annotation>
+												<xs:documentation>Specifies the path where the log files should be stored.</xs:documentation>
+											</xs:annotation>
+										</xs:attribute>
+										<xs:attribute name="globalwait" type="xs:int" use="optional">
+											<xs:annotation>
+												<xs:documentation>Time to wait until the configuration should be read (in ms).</xs:documentation>
+											</xs:annotation>
+										</xs:attribute>
+									</xs:extension>
+								</xs:complexContent>
+							</xs:complexType>
+						</xs:element>
+
+						<xs:element ref="http" minOccurs="1" maxOccurs="1" />
+						<xs:element ref="cron" minOccurs="0" maxOccurs="1" />
+						<xs:element ref="luaengine" minOccurs="1" maxOccurs="1" />
+						<xs:element ref="serverTcp" minOccurs="0" maxOccurs="1" />
+
+						<xs:sequence minOccurs="0" maxOccurs="unbounded">
+							<xs:element ref="variable"  minOccurs="0" maxOccurs="unbounded" />
+							<xs:element ref="genericService" minOccurs="0" maxOccurs="unbounded" />
+							<xs:element ref="configItem" minOccurs="0" maxOccurs="unbounded" />
+						</xs:sequence>
+					</xs:sequence>
+
+					<xs:attribute name="version" use="required">
+						<xs:annotation>
+							<xs:documentation>Version of the configuration. Should always be 330.</xs:documentation>
+						</xs:annotation>
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:enumeration value="330" />
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

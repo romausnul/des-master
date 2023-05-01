@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "dgSpecHash": "GkD2Uk8dv4qonQUO4mPRIS1UgpxZmdZ403ExUCurhI57BI3aNMyoYN7Tg1xj209YO3730yl4ZHKOxlj5ri8ECg==",
+  "success": false,
+  "projectFilePath": "D:\\des-master\\ServerLib\\ServerLib.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\romau\\.nuget\\packages\\microsoft.csharp\\4.5.0\\microsoft.csharp.4.5.0.nupkg.sha512",
+    "C:\\Users\\romau\\.nuget\\packages\\neolua\\1.3.14\\neolua.1.3.14.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1104",
+      "level": "Error",
+      "message": "Не удалось найти проект \"D:\\des-master\\Extern\\Core\\DESCore\\DESCore.csproj\". Убедитесь, что ссылка на проект действительна и файл проекта существует.",
+      "libraryId": "D:\\des-master\\Extern\\Core\\DESCore\\DESCore.csproj",
+      "targetGraphs": [
+        ".NETFramework,Version=v4.8"
+      ]
+    }
+  ]
+}
