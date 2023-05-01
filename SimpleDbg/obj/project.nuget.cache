@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "frg4qAuESpFb5jcUllDOYsTjP8A5HOW3ZQJ6CUfXqqKTm43lArQP2jEqC+K5J5eM4blFdtElYcjkZ4/riA4MXg==",
+  "success": true,
+  "projectFilePath": "D:\\des-master\\SimpleDbg\\SimpleDbg.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\romau\\.nuget\\packages\\commandlineparser\\2.8.0\\commandlineparser.2.8.0.nupkg.sha512",
+    "C:\\Users\\romau\\.nuget\\packages\\microsoft.csharp\\4.5.0\\microsoft.csharp.4.5.0.nupkg.sha512",
+    "C:\\Users\\romau\\.nuget\\packages\\neolua\\1.3.14\\neolua.1.3.14.nupkg.sha512"
+  ],
+  "logs": []
+}
